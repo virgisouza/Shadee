@@ -104,30 +104,29 @@ class ShadeCamera extends Component {
   }
 
   _startRecord(){
+    AsyncStorage.getItem('data')
+    .then((value) => {
+      this.setState({
+        data: JSON.parse(value)
+      });
+    })
+    .done();
+
     startVideo = setTimeout(this._recordVideo.bind(this), 50);
   }
 
   _recordVideo() {
+
+
     this.refs.camera.capture({
       mode: Camera.constants.CaptureMode.video,
       audio: true,
       target: Camera.constants.CaptureTarget.disk,
-      totalSeconds: 15
+      captureQuality: Camera.constants.CaptureQuality["480p"]
     })
     .then((data) => {
       VideoPath = data.path;
       if (VideoPath){
-
-        AsyncStorage.getItem('data')
-        .then((value) => {
-          console.log('value', value);
-          this.setState({
-            data: JSON.parse(value)
-          });
-        })
-        .done();
-
-        console.log('this.state', this.state);
 
         let data = new FormData();
         data.append('upl', { uri: VideoPath, name: `${this.props.victim.id}.mp4`, type: 'video'});
@@ -145,6 +144,7 @@ class ShadeCamera extends Component {
         }
         fetch(`${url}messages`, config)
         .then((response) => {
+          console.log('response', response);
           response.json()
           .then((data) => {
             this.props.addMessage(data);
